@@ -1,7 +1,7 @@
 # Automated-PdM
 Automated Prédictive Maintenance Systeme - Projet Transverse - M2 BDML Efrei Paris
 
-<div style="text-align: right"> Mathys Goncalves - </div>
+<div style="text-align: right"> Mathys Goncalves - Nour-Eddine Oubenami - Julie Ngan - Lucie Bottin - Celine Khauv - Neal Louokdom</div>
 </br>
 
 ## Le besoin
