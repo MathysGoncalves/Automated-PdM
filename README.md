@@ -79,7 +79,7 @@ Après s'etre login :
 - Drop null values/ populate
 - Converting data types 
 
-2) Filter out outliers 
+2) Filter out outliers (Isolation Forest ou autre)
 
 3) Autoencoders modelling
 
