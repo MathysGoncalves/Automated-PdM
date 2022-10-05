@@ -90,3 +90,8 @@ Après s'etre login :
 6) Notification (Telegram ?)
 
 ### Techno utilisées
+
+### Dataset 
+
+https://www.kaggle.com/datasets/shivamb/machine-predictive-maintenance-classification?resource=download
+https://github.com/kokikwbt/predictive-maintenance
