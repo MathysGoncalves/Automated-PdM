@@ -91,6 +91,9 @@ Après s'etre login :
 
 ### Techno utilisées
 
+Frontend : 
+Backend : Python (Flask, TensorFlow) 
+
 ### Dataset 
 
 https://www.kaggle.com/datasets/shivamb/machine-predictive-maintenance-classification?resource=download
