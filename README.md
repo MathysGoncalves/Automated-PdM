@@ -59,6 +59,8 @@ La difficulté se situe autour des besoins d'expertise. En effet un data scienti
 
 </br>
 
+La finalité de notre solution est une interface web permettant la visualisation du fonctionnement des actifs.
+
   ********
 
 ### Action utilisateur
@@ -98,3 +100,13 @@ Backend : Python (Flask, TensorFlow)
 
 https://www.kaggle.com/datasets/shivamb/machine-predictive-maintenance-classification?resource=download
 https://github.com/kokikwbt/predictive-maintenance
+
+## Solution Existante
+
+https://www.factorysoftware.fr/produit/asset-performance-maintenance-4-0?utm_term=maintenance%20pr%C3%A9dictive&utm_medium=ppc&utm_campaign=ASUC%20-%20Maintenance%204.0%20-%20bmm%20(NEW)&utm_source=adwords&hsa_ad=480047566520&hsa_kw=maintenance%20pr%C3%A9dictive&hsa_acc=1640046078&hsa_ver=3&hsa_src=g&hsa_cam=10015535008&hsa_mt=p&hsa_grp=103947549794&hsa_net=adwords&hsa_tgt=kwd-336014681913&gclid=Cj0KCQjw1vSZBhDuARIsAKZlijToympXFx51xrEXH_b57bLKrNjAgGi0q3al14-nAUUUarTeRZyEWxAaAthIEALw_wcB&fbclid=IwAR3BLeJ5-Yo6LAxcsVDULIB79bqvaHzRMmB6OmigVxyf0cewjyubt244Ys4
+
+## Ameliorations possibble
+
+- Asset Management (maintenance calendar)
+- Inventory
+- Mobile App
