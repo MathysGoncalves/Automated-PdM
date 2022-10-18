@@ -100,6 +100,10 @@ Backend : Python (Flask, TensorFlow)
 
 https://www.kaggle.com/datasets/shivamb/machine-predictive-maintenance-classification?resource=download
 https://github.com/kokikwbt/predictive-maintenance
+https://github.com/BLarzalere/LSTM-Autoencoder-for-Anomaly-Detection/blob/master/Sensor%20Anomaly%20Detection.ipynb
+https://www.kaggle.com/code/robinteuwens/anomaly-detection-with-auto-encoders
+
+https://www.analyticsvidhya.com/blog/2022/01/complete-guide-to-anomaly-detection-with-autoencoders-using-tensorflow/
 
 ## Solution Existante
 
