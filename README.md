@@ -11,12 +11,25 @@ Le but du projet transverse en cycle apprentissage (TransverseApp) 2022-2023 est
 ## 4SIGHT, SYSTEME DE MAINTENANCE PREDICTIVE AUTOMATISE
 Le projet s'inscrit dans la démarche de l'industrie 4.0 vers laquelle toutes les industries s'orientent. Grace aux données recueillies par l'IoT, l'objectif est de déterminer les anomalies de fonctionnement des machines. Cela peut être sur des compresseurs, pompes, tuyauteries ou toute autre machine équipée de capteurs. Nous souhaitons proposer une solution qui ne requiert aucune connaissance de développement à l'utilisateur ainsi qu’en dégageant du temps à l’expert métier. 
 
+## Project Management
+
+Poetry: Dependency management
+hydra: Manage configuration files
+pre-commit plugins: Automate code reviewing formatting
+DVC: Data version control
+pdoc: Automatically create API documentation for your project
+
 ## Dataset 
 
 https://www.kaggle.com/datasets/shivamb/machine-predictive-maintenance-classification?resource=download
+
 https://github.com/kokikwbt/predictive-maintenance
+
 https://github.com/BLarzalere/LSTM-Autoencoder-for-Anomaly-Detection/blob/master/Sensor%20Anomaly%20Detection.ipynb
+
 https://www.kaggle.com/code/robinteuwens/anomaly-detection-with-auto-encoders
 
 https://www.analyticsvidhya.com/blog/2022/01/complete-guide-to-anomaly-detection-with-autoencoders-using-tensorflow/
+
+https://towardsdatascience.com/how-to-structure-a-data-science-project-for-readability-and-transparency-360c6716800
 
