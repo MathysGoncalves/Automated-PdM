@@ -11,13 +11,6 @@ Le but du projet transverse en cycle apprentissage (TransverseApp) 2022-2023 est
 ## 4SIGHT, SYSTEME DE MAINTENANCE PREDICTIVE AUTOMATISE
 Le projet s'inscrit dans la démarche de l'industrie 4.0 vers laquelle toutes les industries s'orientent. Grace aux données recueillies par l'IoT, l'objectif est de déterminer les anomalies de fonctionnement des machines. Cela peut être sur des compresseurs, pompes, tuyauteries ou toute autre machine équipée de capteurs. Nous souhaitons proposer une solution qui ne requiert aucune connaissance de développement à l'utilisateur ainsi qu’en dégageant du temps à l’expert métier. 
 
-## Project Management
-
-Poetry: Dependency management
-hydra: Manage configuration files
-pre-commit plugins: Automate code reviewing formatting
-DVC: Data version control
-pdoc: Automatically create API documentation for your project
 
 ## Dataset 
 
