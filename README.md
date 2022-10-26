@@ -26,3 +26,5 @@ https://www.analyticsvidhya.com/blog/2022/01/complete-guide-to-anomaly-detection
 
 https://towardsdatascience.com/how-to-structure-a-data-science-project-for-readability-and-transparency-360c6716800
 
+https://www.kaggle.com/datasets/arnabbiswas1/microsoft-azure-predictive-maintenance
+
