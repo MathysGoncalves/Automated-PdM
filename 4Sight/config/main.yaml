@@ -1,6 +1,6 @@
 defaults:
   - process: process1
-  - model: model1
+  - model: svc
   - _self_
 
 processed:
