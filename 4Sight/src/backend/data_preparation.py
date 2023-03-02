@@ -39,12 +39,9 @@ def nan(df):
     for col in non_numeric_cols:
         pct_missing = np.mean(df[col].isnull())
         print('{} - {}%'.format(col, round(pct_missing*100)))
-        if pct_missing < 4:
-            med = df[col].median()
-            df[col] = df[col].fillna(med)
-        if pct_missing >= 20:
+        if pct_missing >= 15:
             df = df.drop(columns=[col])
-        if pct_missing < 20 :
+        if pct_missing < 15 :
             df = df.dropna(subset=[col])
     print(df.shape)
     return df
@@ -84,8 +81,8 @@ def dummification(df, cat=None):
     -------
     df : Pandas DataFrame 
     """
+    print("Encoding categorical varible(s)...")
     if cat is not None:
-        print("Encoding categorical varible(s)...")
         pd.get_dummies(data=df, columns=cat)
     print(df.shape)
     return df
@@ -106,8 +103,8 @@ def drop_bad_periods(df, mult_var=None, l_periods:dict=None):
     -------
     df : Pandas DataFrame 
     """
+    print("Removing Time periods...")
     if l_periods is not None:
-        print("Removing Time periods...")
         for key, value in l_periods.items():
             if (mult_var is not None) & (len(mult_var) != 0):
                 df = df[~(df.index.strftime('%Y-%m-%d').isin(value) & df[mult_var == key])]
@@ -132,6 +129,7 @@ def drop_date(df, dow=None, month=None):                                        
     -------
     df : Pandas DataFrame 
     """
+    print("Removing date")
     if dow is not None:
         print("Removing day of week...")
         mask = df.index.dayofweek.isin(dow)
@@ -181,18 +179,19 @@ def data_prep(df, dow=None, month=None, cat=None, mult_var=None, l_periods=None)
     -------
     df : Pandas DataFrame 
     """
+    df = df.drop_duplicates(keep='last')                                            #* Keep only most recent duplicatas
     df = drop_bad_periods(df, mult_var=mult_var, l_periods=l_periods)               #* Drop periods selected
     df = drop_date(df, dow=dow, month=month)                                        #* Drop useless date
-    df = df.drop_duplicates(keep='last')                                            #* Keep only most recent duplicatas
     df = fix_typos(df)                                                              #* Set a good typos for categorical features
-    df = dummification(df, cat=None)                                                #* Encode categorical variables 
-    df = df.convert_dtypes()                                                        #* Assign good type for the modelling phase
-    df = df.select_dtypes(exclude=['object'])                                       #* Remove Object and String columns who are irrelevant
-    df = nan(df)                                                                    #* Process empty values based on several conditions
-    df = df.convert_dtypes()                                                        #* Assign good type for the modelling phase
-                                                    
-    print('\n', df.dtypes)
-    return df
+    df = dummification(df, cat)                                                     #* Encode categorical variables 
+    dfn = df.apply(pd.to_numeric, errors='ignore')                                                      #* Assign good type for the modelling phase
+    print(dfn.dtypes)
+    #df = df.select_dtypes(exclude=['object'])                                       #* Remove Object and String columns who are irrelevant
+    dfn = nan(dfn)                                                                    #* Process empty values based on several conditions
+    dfn = dfn.convert_dtypes()                                                       #* Assign good type for the modelling phase
+    
+    print("End of preprocessing\n")                                                
+    return dfn
 
 
 
@@ -273,7 +272,6 @@ def fit_IF(train):
 
     print('\nOptimum parameters', best_model.best_params_)
     custom_silhouette(best_model, train.values)
-    custom_DBScrore(best_model, train.values)
     return best_model
 
 def predict_IF(best_model, train):
@@ -291,8 +289,10 @@ def predict_IF(best_model, train):
     """
     y_pred = best_model.predict(train.values)
     train_clustered = train.assign(Cluster=y_pred)
-    train_clustered = train_clustered['Cluster'].replace({-1: "Anomaly", 1: "Regular"})
-    train_clustered["Cluster"].value_counts()
+    train_clustered['Cluster'] = train_clustered['Cluster'].replace({-1: "Anomaly", 1: "Regular"})
+    train_clustered = train_clustered[train_clustered['Cluster'] == "Regular"]
+    train_clustered = train_clustered.drop(columns=['Cluster'])
+    return train_clustered
 
 def save_final_dataframe(data_clustered):
     """

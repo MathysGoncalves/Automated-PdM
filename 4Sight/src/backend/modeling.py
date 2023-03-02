@@ -16,17 +16,21 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 import joblib
 
+import warnings
+warnings.filterwarnings("ignore")
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
-def minmaxscaler(train):
+
+def fit_scaler(train, table_name):
     scaler = MinMaxScaler()
     scaler.fit(train)
-    scaler_path = "../models/scaler_data.pkl"
+    scaler_path = "../models/scaler_" + str(table_name) + ".pkl"
     joblib.dump(scaler, scaler_path)
-    return scaler_path
 
-def apply_scaler(data):
-    scaler = joblib.load("../models/scaler_data.pkl")
+def apply_scaler(data, table_name):
+    scaler = joblib.load("../models/scaler_" + str(table_name) + ".pkl")
     return scaler.transform(data)
+
 
 def create_autoencoder(input_dim, num_hidden_layers, hidden_layer_sizes, dropout_rate, learning_rate):
     inputs = Input(shape=(input_dim,))
@@ -48,20 +52,11 @@ def create_autoencoder(input_dim, num_hidden_layers, hidden_layer_sizes, dropout
     #autoencoder.summary()
     return autoencoder
 
-def learning_curves(autoencoder_search):
-    fig, ax = plt.subplots(figsize=(20, 4))
-    ax.plot(autoencoder_search.best_estimator_.model.history.history['loss'], 'b', label='Train', linewidth=2)
-    ax.plot(autoencoder_search.best_estimator_.model.history.history['val_loss'], 'r', label='Validation', linewidth=2)
-    ax.set_title('Model loss', fontsize=16)
-    ax.set_ylabel('Loss (mse)')
-    ax.set_xlabel('Epoch')
-    ax.legend(loc='upper right')
-    plt.show()
 
-def fit(train_scaled):
+def ae_fit(train_scaled, table_name):
     # Define the search space and search for the best hyperparameters using RandomizedSearchCV
     params = {
-        'input_dim': [4, None],
+        'input_dim': [train_scaled.shape[1], None],
         'num_hidden_layers': range(1, 5),
         'hidden_layer_sizes': [8, 16, 32, 64],
         'learning_rate': [10 ** i for i in range(-4, -1)],
@@ -77,16 +72,16 @@ def fit(train_scaled):
                                             random_state=42,
                                             n_jobs=3)
 
-    early_stopping = EarlyStopping(monitor="val_loss", patience=8, mode="min")
-    checkpoint = ModelCheckpoint(filepath='../models/autoencoder.h5',
+    early_stopping = EarlyStopping(monitor="val_loss", patience=5, mode="min")
+    checkpoint = ModelCheckpoint(filepath="../models/ae_" + str(table_name) + ".h5",
                                 monitor='val_loss',
                                 save_best_only=True,
                                 mode='min')
 
     try:
-        os.remove("../models/autoencoder.h5")
+        os.remove("../models/ae_" + str(table_name) + ".h5")
     except:
-        print("No model saved yet")
+        print("\n\nNo model saved yet")
 
     # fit the randomized search object to the training data
     autoencoder_search.fit(train_scaled,train_scaled,
@@ -98,10 +93,18 @@ def fit(train_scaled):
                         verbose=0)
 
     print(autoencoder_search.best_params_)
-    return autoencoder_search
 
+def learning_curves(autoencoder_search):
+    fig, ax = plt.subplots(figsize=(20, 4))
+    ax.plot(autoencoder_search.best_estimator_.model.history.history['loss'], 'b', label='Train', linewidth=2)
+    ax.plot(autoencoder_search.best_estimator_.model.history.history['val_loss'], 'r', label='Validation', linewidth=2)
+    ax.set_title('Model loss', fontsize=16)
+    ax.set_ylabel('Loss (mse)')
+    ax.set_xlabel('Epoch')
+    ax.legend(loc='upper right')
+    plt.show()
 
-def cluster_data(autoencoder_search, train_scaled, test_scaled, test):
+def cluster_data(autoencoder_search, train_scaled, test_scaled, test, test_table_name):
     reconstructions = autoencoder_search.predict(train_scaled)
     train_mae_loss = np.mean(np.abs(reconstructions - train_scaled), axis=1)
 
@@ -110,13 +113,12 @@ def cluster_data(autoencoder_search, train_scaled, test_scaled, test):
 
     #threshold = np.max(train_mae_loss)
     threshold = np.mean(train_mae_loss) + 2*np.std(train_mae_loss)
-    print("Global Reconstruction error threshold: ", threshold)
+    print("\nGlobal Reconstruction error threshold: ", threshold)
 
     test['Loss'] = test_mae_loss
     test.loc[test['Loss'] <= threshold, 'Anomaly'] = "Normal"
     test.loc[test['Loss'] >= threshold, 'Anomaly'] = "Anomaly"
     test['Threshold'] = threshold
 
-    test.to_csv('../data/final/test_Bearing_Nasa_AD.csv')
-    print(test.head())
-    return threshold
+    test.to_csv("../../data/final/" + str(test_table_name) + "_AD.csv")
+    return test
