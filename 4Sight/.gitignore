@@ -92,3 +92,5 @@ target/
 
 # Hydra logs
 outputs
+
+src/backend/auth/node_modules
