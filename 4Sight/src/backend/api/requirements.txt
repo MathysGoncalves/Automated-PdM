@@ -1,0 +1,15 @@
+python-csv
+python-time
+requires.io
+os-sys
+random2
+subprocess.run
+psycopg2-binary
+Distutils2
+micropython-fileinput
+Flask 
+Flask-SQLAlchemy
+Flask-Migrate
+pandas
+Werkzeug
+ssl

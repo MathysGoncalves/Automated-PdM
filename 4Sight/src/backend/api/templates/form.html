@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html class='signIn'>
+{% extends "base.html" %}
+{% block content %}
+
+<body>
+
+<center>
+<h1>Data to remove from dataset</h1>
+<form method="post" action="predict">
+    <select id="operator" name="operator">
+        <option value="Select day of week">Day of Week</option>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+    </select>
+
+    <select id="operator" name="operator" action="predict">
+        <option value="Month">Month</option>
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+    </select>
+    <h3>Long format ? (Several ids or machines defined in a column)</h3>
+    <select id="operator" name="operator" action="predict">
+        <option value="Features">Features</option>
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+    </select>
+
+    <h3>Categorical Features</h3>
+    <!--TODO : Récupérer les variables du dataset importé-->
+    <select id="operator" name="operator" action="predict">
+        <option value="Features">Features</option>
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+    </select>
+    <button id="predict-button">Predict</button> 
+</form>
+</center>
+
+</body>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $("#predict-button").click(function(){
+            let message = {image: base64Image}
+            $.post("http://127.0.0.1:5000/predict", JSON.stringify(message), function(response){
+            $("#prediction").text("results: "+response.prediction[0]+" ( confidence : "+response.prediction[1]+")");
+                console.log(response);
+            });
+        });   
+
+</script>
+{% endblock %}
+</html>
