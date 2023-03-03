@@ -10,7 +10,7 @@ import time
 import psycopg2
 from distutils.log import debug
 from fileinput import filename
-from flask import Flask, abort, render_template, request, jsonify, session
+from flask import Flask, abort, make_response, render_template, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import pandas as pd
@@ -25,7 +25,7 @@ app.config['SECRET_KEY'] = 'this_is_a_super_secret_key'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 ALLOWED_EXTENSIONS = {'csv'}
-cors = CORS(app, resources={r"/upload": {"origins": "http://localhost:4200"}})
+cors = CORS(app, resources={r"/get_data": {"origins": "http://localhost:4200"}})
 table_name = ''
 
 def allowed_file(filename):
@@ -123,28 +123,28 @@ def get_data():
     # Get the table name from the session
     table_name = session.get('table_name')
     if not table_name:
-        abort(404)
+        return make_response(jsonify({'error': 'Table name not found in session'}), 400)
     
-    # Get the model class for the table
-    class Data(db.Model):
-        __tablename__ = table_name
-        # Define the columns of the table dynamically
-        metadata = db.MetaData()
-        table = db.Table(__tablename__, metadata, autoload=True, autoload_with=db.engine, extend_existing = True)
-        for column in table.columns:
-            locals()[column.name] = db.Column(column.type, primary_key=column.primary_key)
+   # Define the columns of the table dynamically
+    metadata = db.MetaData()
+    table = db.Table(table_name, metadata, autoload_with=db.engine, extend_existing=True)
+    columns = [column.name for column in table.columns]
 
-    # Query the database for all instances of the model class
-    instances = Data.query.all()
+    # Query the database for the first 20 rows of the table
+    query = db.session.query(*[table.columns[column] for column in columns]).limit(20)
+    rows = query.all()
 
-    # Convert the instances to a list of dictionaries
+    # Convert the rows to a list of dictionaries
     data = []
-    for instance in instances:
-        data.append({col: getattr(instance, col) for col in header})
+    for row in rows:
+        data.append({columns[i]: row[i] for i in range(len(row))})
 
     # Return the data as a JSON response
     return jsonify(data)
-    
+
+@app.route('/train')
+def train():
+    return 'slay'
     
 
 if __name__ == '__main__':  
