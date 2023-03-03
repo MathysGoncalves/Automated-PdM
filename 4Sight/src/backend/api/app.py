@@ -18,6 +18,8 @@ import pandas as pd
 from sqlalchemy import inspect
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+from sklearn.model_selection import train_test_split
+
 
 from pipelines.pipeline import *
 from pipelines.modeling import *
@@ -35,7 +37,6 @@ ALLOWED_EXTENSIONS = {'csv'}
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:4200"}})
 table_name = ''
 
-global db_config
 db_config = {     
     'host': 'localhost',
     'database': 'flask_db',
@@ -104,33 +105,42 @@ def upload():
                 data = csv.reader(file_obj)
                 header = next(data)
 
-                # Dynamically create a new SQLAlchemy model class
+                # Split the data into train and test sets
+                data_train, data_test = train_test_split(list(data), test_size=0.2, random_state=42)
 
-                table_name = f"{f.filename.rsplit('.', 1)[0]}_{str(int(time.time()))}"
-                
+                # Dynamically create new SQLAlchemy model classes for the train and test tables
+                train_table_name = f"{f.filename.rsplit('.', 1)[0]}_train"
+                train_table_dict = {"__tablename__": train_table_name}
+                train_table_dict.update({col: db.Column(db.String(50), primary_key=True) for col in header})
+                TrainModel = type("TrainData", (db.Model,), train_table_dict)
 
-                table_dict = {
-                    "__tablename__": table_name,
-                }
-                table_dict.update({col: db.Column(db.String(50), primary_key=True) for col in header})
+                test_table_name = f"{f.filename.rsplit('.', 1)[0]}_test"
+                test_table_dict = {"__tablename__": test_table_name}
+                test_table_dict.update({col: db.Column(db.String(50), primary_key=True) for col in header})
+                TestModel = type("TestData", (db.Model,), test_table_dict)
 
-                model_class = type("Data", (db.Model,), table_dict)
                 # Clear the session's state
                 db.session.remove()
 
-                # Create the table
-                model_class.__table__.drop(db.engine, checkfirst=True)
-                model_class.__table__.create(db.engine)
+                # Create the train and test tables
+                TrainModel.__table__.drop(db.engine, checkfirst=True)
+                TrainModel.__table__.create(db.engine)
+                TestModel.__table__.drop(db.engine, checkfirst=True)
+                TestModel.__table__.create(db.engine)
 
-                # Create instances of the new model class and add them to the database session
-                for row in data:
-                    instance = model_class(**dict(zip(header, row)))
+                # Insert the train and test sets into the corresponding tables
+                for row in data_train:
+                    instance = TrainModel(**dict(zip(header, row)))
+                    db.session.add(instance)
+                for row in data_test:
+                    instance = TestModel(**dict(zip(header, row)))
                     db.session.add(instance)
                 db.session.commit()
 
             return jsonify({'success': True, 'message': 'File uploaded successfully'})
         else: 
             return {"error": "Not a CSV file"}
+
 
 @app.route('/get_data/<table_name>')
 def get_data(table_name):
