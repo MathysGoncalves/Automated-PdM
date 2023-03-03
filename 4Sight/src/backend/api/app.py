@@ -109,12 +109,12 @@ def upload():
                 data_train, data_test = train_test_split(list(data), test_size=0.2, random_state=42)
 
                 # Dynamically create new SQLAlchemy model classes for the train and test tables
-                train_table_name = f"{f.filename.rsplit('.', 1)[0]}_train"
+                train_table_name = f"{f.filename.rsplit('.', 1)[0]}_{str(int(time.time()))}_train"
                 train_table_dict = {"__tablename__": train_table_name}
                 train_table_dict.update({col: db.Column(db.String(50), primary_key=True) for col in header})
                 TrainModel = type("TrainData", (db.Model,), train_table_dict)
 
-                test_table_name = f"{f.filename.rsplit('.', 1)[0]}_test"
+                test_table_name = f"{f.filename.rsplit('.', 1)[0]}_{str(int(time.time()))}_test"
                 test_table_dict = {"__tablename__": test_table_name}
                 test_table_dict.update({col: db.Column(db.String(50), primary_key=True) for col in header})
                 TestModel = type("TestData", (db.Model,), test_table_dict)
@@ -132,6 +132,7 @@ def upload():
                 for row in data_train:
                     instance = TrainModel(**dict(zip(header, row)))
                     db.session.add(instance)
+                    
                 for row in data_test:
                     instance = TestModel(**dict(zip(header, row)))
                     db.session.add(instance)
