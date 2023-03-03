@@ -15,7 +15,7 @@ from flask import Flask, abort, make_response, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import pandas as pd
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 from sklearn.model_selection import train_test_split
@@ -132,7 +132,7 @@ def upload():
                 for row in data_train:
                     instance = TrainModel(**dict(zip(header, row)))
                     db.session.add(instance)
-                    
+
                 for row in data_test:
                     instance = TestModel(**dict(zip(header, row)))
                     db.session.add(instance)
@@ -141,7 +141,6 @@ def upload():
             return jsonify({'success': True, 'message': 'File uploaded successfully'})
         else: 
             return {"error": "Not a CSV file"}
-
 
 @app.route('/get_data/<table_name>')
 def get_data(table_name):
@@ -179,6 +178,34 @@ def get_tables():
     # Return the filtered table names as a JSON response
     return jsonify(filtered_tables)
 
+@app.route('/filter_features', methods=['POST'])
+def filter_features():
+    # Get the existing train and test tables
+    train_table_name = request.json['table_name']
+    test_table_name = request.json['test_table_name']
+
+    metadata = db.MetaData()
+    TrainModel = db.Table(train_table_name, metadata, autoload_with=db.engine, extend_existing=True)
+    TestModel = db.Table(test_table_name, metadata, autoload_with=db.engine, extend_existing=True)
+
+    # Get the columns selected by the user
+    selected_columns = request.json['columns']
+
+    columns = ', '.join(f'"{col}"' for col in selected_columns)
+    new_train_table = f"new_{train_table_name}_{str(int(time.time()))}"
+    new_test_table = f"new_{test_table_name}_{str(int(time.time()))}"
+    
+    # Construct the SQL queries to create new tables with selected columns
+    train_query = text(f"SELECT {columns} INTO {new_train_table} FROM {train_table_name}")
+    test_query = text(f"SELECT {columns} INTO {new_test_table} FROM {test_table_name}")
+
+    # Execute the SQL queries to create new tables with selected columns
+    db.session.execute(train_query)
+    db.session.execute(test_query)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Columns updated successfully', 'new_table_train': new_train_table, 'new_table_test': new_test_table })
+
+
 @app.route('/train_and_predict', methods=['POST'])
 def predict():
     # Get the request data
@@ -194,6 +221,30 @@ def predict():
 
     # Return the prediction results as JSON
     return jsonify({'success': True, 'message': 'It Worked Queen !', 'result' : result})
+
+@app.route('/get_predictions/<table_name>')
+def get_predictions(table_name):
+    # Get the table name from the session
+    #table_name = session.get('table_name')
+    if not table_name:
+        return make_response(jsonify({'error': 'Table name not found in session' + str(table_name)}), 400)
+
+   # Define the columns of the table dynamically
+    metadata = db.MetaData()
+    table = db.Table(table_name, metadata, autoload_with=db.engine, extend_existing=True)
+    columns = [column.name for column in table.columns]
+
+    # Query the database for the first 20 rows of the table
+    query = db.session.query(*[table.columns[column] for column in columns])
+    rows = query.all()
+
+    # Convert the rows to a list of dictionaries
+    data = []
+    for row in rows:
+        data.append({columns[i]: row[i] for i in range(len(row))})
+
+    # Return the data as a JSON response
+    return jsonify(data)
 
 if __name__ == '__main__':  
     app.run(debug=True)
