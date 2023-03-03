@@ -11,7 +11,7 @@ const initializePassport = require("./passportConfig");
 
 initializePassport(passport);
 
-const PORT = process.env.PORT || 8085;
+const PORT = process.env.PORT || 8086;
 app.use("/css", express.static("css"));
 app.use(express.urlencoded({ extended: false }));
 
