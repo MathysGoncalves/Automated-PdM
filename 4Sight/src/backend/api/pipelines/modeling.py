@@ -22,13 +22,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def fit_scaler(train, table_name):
+    print(table_name)
     scaler = MinMaxScaler()
     scaler.fit(train)
-    scaler_path = "../models/scaler_" + str(table_name) + ".pkl"
+    scaler_path = "./models/scaler_" + str(table_name) + ".pkl"
     joblib.dump(scaler, scaler_path)
 
 def apply_scaler(data, table_name):
-    scaler = joblib.load("../models/scaler_" + str(table_name) + ".pkl")
+    print(table_name)
+    scaler = joblib.load("./models/scaler_" + str(table_name) + ".pkl")
     return scaler.transform(data)
 
 
@@ -54,6 +56,7 @@ def create_autoencoder(input_dim, num_hidden_layers, hidden_layer_sizes, dropout
 
 
 def ae_fit(train_scaled, table_name):
+    print(table_name)
     # Define the search space and search for the best hyperparameters using RandomizedSearchCV
     params = {
         'input_dim': [train_scaled.shape[1], None],
@@ -73,13 +76,13 @@ def ae_fit(train_scaled, table_name):
                                             n_jobs=3)
 
     early_stopping = EarlyStopping(monitor="val_loss", patience=5, mode="min")
-    checkpoint = ModelCheckpoint(filepath="../models/ae_" + str(table_name) + ".h5",
+    checkpoint = ModelCheckpoint(filepath="./models/ae_" + str(table_name) + ".h5",
                                 monitor='val_loss',
                                 save_best_only=True,
                                 mode='min')
 
     try:
-        os.remove("../models/ae_" + str(table_name) + ".h5")
+        os.remove("./models/ae_" + str(table_name) + ".h5")
     except:
         print("\n\nNo model saved yet")
 
@@ -120,5 +123,5 @@ def cluster_data(autoencoder_search, train_scaled, test_scaled, test, test_table
     test.loc[test['Loss'] >= threshold, 'Anomaly'] = "Anomaly"
     test['Threshold'] = threshold
 
-    test.to_csv("../../data/final/" + str(test_table_name) + "_AD.csv")
+    test.to_csv("../../../data/final/" + str(test_table_name) + "_AD.csv")
     return test
