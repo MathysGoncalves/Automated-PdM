@@ -1,6 +1,6 @@
-# from modeling import *
-# from data_import import *
-# from data_preparation import *
+from pipelines.modeling import *
+from pipelines.data_import import *
+from pipelines.data_preparation import *
 
 from tensorflow import keras
 
@@ -18,8 +18,6 @@ db_config = {                       #Start server first
     'password': 'oui'
 }
 
-train_table_name = 'train_Bearing_Nasa'
-test_table_name = 'test_Bearing_Nasa'
 dow, month = None, None                                                             #! Get from UI
 cat = None                                                                          #! Get from UI
 mult_var = None                                                                     #! Get from UI

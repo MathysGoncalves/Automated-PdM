@@ -174,7 +174,7 @@ def get_tables():
     tables = inspector.get_table_names()
     
     # Filter the table names based on the naming convention you specified
-    filtered_tables = [table for table in tables if re.match(r'^[a-zA-Z]+_[0-9]{10}$', table)]
+    filtered_tables = [table for table in tables if re.match(r'^[a-zA-Z]+_[0-9]{10}_train', table)]
     
     # Return the filtered table names as a JSON response
     return jsonify(filtered_tables)
@@ -186,14 +186,14 @@ def predict():
 
     # Extract the table names and database configuration from the request data
     train_table_name = req_data['train_table_name']
-    test_table_name = train_table_name + '_test'
+    test_table_name = req_data['test_table_name']
 
     # Call the train pipeline and predict pipeline functions
     train_pipeline(train_table_name, db_config)
     result = predict_pipeline(train_table_name, test_table_name)
 
     # Return the prediction results as JSON
-    return jsonify({'success': True, 'message': 'It Worked Queen !'})
+    return jsonify({'success': True, 'message': 'It Worked Queen !', 'result' : result})
 
 if __name__ == '__main__':  
     app.run(debug=True)
