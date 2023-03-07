@@ -61,7 +61,10 @@ app.get("/users/logout", (req, res) => {
 });
 
 app.post("/users/register", async (req, res) => {
-  let { username, email, password, password2 } = req.body;
+  const username = req.body.name;
+  const email = req.body.email;
+  const password = req.body.password;
+  const password2 = req.body.password2;
 
   let errors = [];
 
@@ -74,7 +77,7 @@ app.post("/users/register", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("register", { errors });
+    res.json({ "sucess": false, errors: { errors } });
   } else {
     hashedPassword = await bcrypt.hash(password, 10);
     // Form validation has passed
@@ -87,7 +90,7 @@ app.post("/users/register", async (req, res) => {
         }
         if (response.rows.length > 0) {
           errors.push({ message: "User already registered" });
-          res.render("register", { errors });
+          res.json({ "register": errors });
         } else {
           pool.query(
             `insert into users(name, email, password, level) values ($1, $2, $3, $4) RETURNING id, password`,
@@ -97,7 +100,7 @@ app.post("/users/register", async (req, res) => {
                 throw err;
               }
               req.flash("sucess_msg", "You are now registered. Please log in");
-              res.redirect("/users/login");
+              res.json({ sucess: true });
             }
           );
         }
@@ -164,7 +167,7 @@ app.post("/users/login", function (req, res) {
   });
 });*/
 
-app.get("/users/administrator", checkAdministrator, (req, res) => {
+app.get("/users/administrator", (req, res) => {
   var query = "SELECT id, name, email, level from users"
   pool.query(query, (err, response) => {
     if (err) {
@@ -172,19 +175,22 @@ app.get("/users/administrator", checkAdministrator, (req, res) => {
     }
     else {
       const users = response.rows;
-      var queryOrder = "SELECT * from order_data join order_product on order_data.order_id = order_product.order_id order by datetime";
-      pool.query(queryOrder, (err, responseOrder) => {
-        if (err) {
-          throw err;
-        }
-        else {
-          const orders = responseOrder.rows;
-          res.render("admin", { users: users, orders: orders, currentUser: req.user })
-        }
-      })
+      res.json({ users: users })
     }
   })
 })
+
+app.get("/users/level", (req, res) => {
+  const email = req.query.email;
+  const query = "SELECT level FROM users WHERE email = $1";
+  pool.query(query, [email], (err, response) => {
+    if (err) {
+      throw err;
+    } else {
+      res.json({ level: response.rows[0].level });
+    }
+  });
+});
 
 app.get("/users/profile", checkNotAuthenticated, (req, res) => {
   var query = "SELECT id, name, email, level from users"
@@ -238,7 +244,7 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 function checkAdministrator(req, res, next) {
-  if (req.isAuthenticated() && (req.user.level === 0)) {
+  if (req.query.level === 0) {
     return next();
   } else if (req.isAuthenticated()) {
     return res.redirect("/users/login");

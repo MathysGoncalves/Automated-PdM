@@ -9,4 +9,3 @@ Flask
 Flask-SQLAlchemy
 Flask-Migrate
 pandas
-Werkzeug

@@ -9,14 +9,12 @@ from subprocess import PIPE, Popen
 import subprocess
 import time
 import psycopg2
-from distutils.log import debug
 from fileinput import filename
 from flask import Flask, abort, make_response, render_template, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import pandas as pd
 from sqlalchemy import inspect, text
-from werkzeug.utils import secure_filename
 from flask_cors import CORS
 from sklearn.model_selection import train_test_split
 
@@ -108,7 +106,7 @@ def upload():
                 # Split the data into train and test sets
                 data_train, data_test = train_test_split(list(data), test_size=0.2, random_state=42)
 
-                # Dynamically create new SQLAlchemy model classes for the train and test tables
+                # Dynamically create new SQLAlchemy model classes for the train and test tables>
                 train_table_name = f"{f.filename.rsplit('.', 1)[0]}_{str(int(time.time()))}_train"
                 train_table_dict = {"__tablename__": train_table_name}
                 train_table_dict.update({col: db.Column(db.String(50), primary_key=True) for col in header})
